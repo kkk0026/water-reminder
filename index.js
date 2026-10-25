@@ -1,11 +1,15 @@
 /**
  * 喝水提醒 - SillyTavern 原生扩展
- * 版本: 1.0.0
+ * 版本: 1.0.1
  * 安装: 酒馆设置 → 扩展 → 粘贴 GitHub 仓库地址 → 安装
  */
 
 (function () {
   'use strict';
+
+  // ========== 扩展路径（酒馆约定） ==========
+  const extensionName = "water-reminder";
+  const extensionFolderPath = `scripts/extensions/third-party/${extensionName}`;
 
   // ========== 配置（localStorage） ==========
   const LS_KEY = '__wrCfg';
@@ -71,12 +75,34 @@
     }).observe(document.documentElement, { childList: true, subtree: true });
   }
 
-  waitBody(() => {
-    // 注入 Toast CSS + HTML
+  waitBody(async () => {
+    // 注入 Toast CSS + HTML（到 body）
     const style = document.createElement('style');
     style.textContent = TOAST_CSS;
     document.head.appendChild(style);
     document.body.insertAdjacentHTML('beforeend', TOAST_HTML);
+
+    // 加载 settings.html 并注入到酒馆扩展设置面板
+    try {
+      const resp = await fetch(`${extensionFolderPath}/settings.html`);
+      if (resp.ok) {
+        const html = await resp.text();
+        // 酒馆有 #extensions_settings 和 #extensions_settings2 两个容器
+        const target = document.querySelector('#extensions_settings2') ||
+                       document.querySelector('#extensions_settings') ||
+                       document.querySelector('[data-tab="extensions"]');
+        if (target) {
+          target.insertAdjacentHTML('afterbegin', html);
+          console.log('[喝水提醒] 设置面板已注入');
+        } else {
+          console.warn('[喝水提醒] 未找到扩展设置容器，设置面板将在首次打开设置时尝试注入');
+        }
+      } else {
+        console.error('[喝水提醒] 加载 settings.html 失败:', resp.status);
+      }
+    } catch (e) {
+      console.error('[喝水提醒] fetch settings.html 异常:', e);
+    }
 
     init();
   });
