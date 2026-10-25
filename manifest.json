@@ -5,7 +5,7 @@
   "optional": [],
   "js": "index.js",
   "author": "你",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "auto_update": true,
   "description": "定时提醒喝水，支持 Tri-Tone / Rebound / 震动 三种提醒方式，时间可设 30分钟/1小时/自定义"
 }
