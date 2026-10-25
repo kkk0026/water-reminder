@@ -1,34 +1,31 @@
 <div class="__wr_settings" data-extension-name="water-reminder">
 <style>
-/* ===== 内部表单控件样式（用酒馆 CSS 变量适配皮肤）===== */
-.__wr_settings .__wr_section{margin:14px 0;}
+/* ===== 极简风：无多余底色，仅用边框/留白分隔 ===== */
+.__wr_settings .__wr_section{margin:12px 0;}
 .__wr_settings .__wr_section:last-child{margin-bottom:0;}
 .__wr_settings .__wr_label{
   display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;
   color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));margin-bottom:8px;
 }
 
-/* --- Toggle 开关 --- */
+/* --- Toggle 开关（无底色，仅边框） --- */
 .__wr_settings .__wr_switch-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:10px 12px;margin-bottom:14px;
-  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.15));
-  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.1));
-  border-radius:8px;
+  padding:8px 0;margin-bottom:12px;
 }
 .__wr_settings .__wr_switch-row label[for="__wrEnabled"]{
-  font-size:13px;color:var(--SmartThemeBodyColor,#fff);
+  font-size:13px;color:var(--SmartThemeEmColor,#fff);
 }
 .__wr_settings .__wr_switch{position:relative;width:40px;height:22px;flex-shrink:0;}
 .__wr_settings .__wr_switch input{opacity:0;width:0;height:0;}
 .__wr_settings .__wr_slider{
-  position:absolute;inset:0;background:rgba(128,128,128,.4);
+  position:absolute;inset:0;background:rgba(128,128,128,.35);
   border-radius:22px;cursor:pointer;transition:.25s;
 }
 .__wr_settings .__wr_slider::before{
   content:"";position:absolute;height:18px;width:18px;left:2px;top:2px;
   background:#fff;border-radius:50%;transition:.25s;
-  box-shadow:0 1px 3px rgba(0,0,0,.3);
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
 }
 .__wr_settings .__wr_switch input:checked + .__wr_slider{
   background:var(--SmartThemeAccentColor,#0a84ff);
@@ -36,13 +33,13 @@
 .__wr_settings .__wr_switch input:checked + .__wr_slider::before{transform:translateX(18px);}
 
 /* --- Radio 预设按钮 --- */
-.__wr_settings .__wr_radio-row{display:flex;gap:8px;flex-wrap:wrap;}
+.__wr_settings .__wr_radio-row{display:flex;gap:6px;flex-wrap:wrap;}
 .__wr_settings .__wr_radio-row label{
   display:inline-flex;align-items:center;font-size:12px;font-weight:500;
-  cursor:pointer;padding:6px 14px;border-radius:8px;
+  cursor:pointer;padding:5px 12px;border-radius:6px;
   border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
   background:transparent;
-  color:var(--SmartThemeBodyColor,rgba(255,255,255,.7));
+  color:var(--SmartThemeEmColor,#fff);
   transition:.15s;
 }
 .__wr_settings .__wr_radio-row label:hover{
@@ -50,19 +47,18 @@
 }
 .__wr_settings .__wr_radio-row label.selected{
   border-color:var(--SmartThemeAccentColor,#0a84ff);
-  background:var(--SmartThemeAccentColor,rgba(10,132,255,.15));
-  color:var(--SmartThemeBodyColor,#fff);
+  color:var(--SmartThemeAccentColor,#0a84ff);
 }
 .__wr_settings .__wr_radio-row input{display:none;}
 
 /* --- 自定义输入 --- */
-.__wr_settings .__wr_custom-row{display:none;gap:6px;align-items:center;margin-top:8px;font-size:12px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));}
+.__wr_settings .__wr_custom-row{display:none;gap:5px;align-items:center;margin-top:6px;font-size:12px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));}
 .__wr_settings .__wr_custom-row.show{display:flex;}
 .__wr_settings .__wr_custom-row input{
-  width:60px;padding:5px 8px;
-  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.2));
+  width:56px;padding:4px 8px;
+  background:transparent;
   border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
-  border-radius:6px;color:var(--SmartThemeBodyColor,#fff);
+  border-radius:6px;color:var(--SmartThemeEmColor,#fff);
   font-size:13px;text-align:center;
 }
 .__wr_settings .__wr_custom-row input:focus{
@@ -71,11 +67,11 @@
 
 /* --- Select --- */
 .__wr_settings .__wr_select{
-  padding:7px 12px;
-  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.2));
+  padding:6px 10px;
+  background:transparent;
   border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
-  border-radius:6px;color:var(--SmartThemeBodyColor,#fff);
-  font-size:12px;min-width:180px;cursor:pointer;
+  border-radius:6px;color:var(--SmartThemeEmColor,#fff);
+  font-size:12px;min-width:160px;cursor:pointer;
 }
 .__wr_settings .__wr_select:focus{
   border-color:var(--SmartThemeAccentColor,#0a84ff);outline:none;
@@ -84,33 +80,34 @@
 /* --- 按钮 --- */
 .__wr_settings .__wr_test-row{display:flex;gap:6px;margin-top:8px;}
 .__wr_settings .__wr_btn{
-  padding:7px 14px;
+  padding:6px 12px;
   background:var(--SmartThemeAccentColor,#0a84ff);
-  color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;
+  color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;
   transition:.15s;
 }
 .__wr_settings .__wr_btn:hover{filter:brightness(1.1);}
 .__wr_settings .__wr_btn.secondary{
   background:transparent;
   border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.2));
-  color:var(--SmartThemeBodyColor,rgba(255,255,255,.8));
+  color:var(--SmartThemeEmColor,#fff);
 }
 .__wr_settings .__wr_btn.secondary:hover{
   border-color:var(--SmartThemeAccentColor,#0a84ff);
+  color:var(--SmartThemeAccentColor,#0a84ff);
 }
 
-/* --- 倒计时 --- */
+/* --- 倒计时（无底色！仅文字） --- */
 .__wr_settings .__wr_countdown{
-  text-align:center;padding:14px;
-  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.15));
-  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.1));
-  border-radius:10px;
-  font-size:11px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));
+  text-align:center;padding:10px 0;
+  border-top:1px dashed var(--SmartThemeBorderColor,rgba(255,255,255,.1));
+  border-bottom:1px dashed var(--SmartThemeBorderColor,rgba(255,255,255,.1));
+  font-size:11px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.4));
+  margin:8px 0;
 }
 .__wr_settings .__wr_countdown .time{
-  font-size:24px;font-weight:700;letter-spacing:1px;
+  font-size:22px;font-weight:700;letter-spacing:1px;
   color:var(--SmartThemeAccentColor,#0a84ff);
-  display:block;margin-top:4px;font-variant-numeric:tabular-nums;
+  display:block;margin-top:2px;font-variant-numeric:tabular-nums;
 }
 </style>
 
