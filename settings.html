@@ -1,0 +1,89 @@
+<style>
+.__wr_settings{margin:8px 0;}
+.__wr_drawer{border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.12));border-radius:10px;overflow:hidden;background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.2));}
+.__wr_drawer-toggle{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;justify-content:space-between;font-weight:600;font-size:14px;}
+.__wr_drawer-toggle .chevron{transition:transform .2s;font-size:12px;}
+.__wr_drawer.open .chevron{transform:rotate(180deg);}
+.__wr_drawer-content{display:none;padding:14px;background:rgba(0,0,0,.15);}
+.__wr_drawer.open .__wr_drawer-content{display:block;}
+.__wr_section{margin-bottom:12px;}
+.__wr_section:last-child{margin-bottom:0;}
+.__wr_label{display:block;font-size:12px;color:rgba(255,255,255,.7);margin-bottom:6px;}
+.__wr_switch-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;}
+.__wr_switch-row label{font-size:13px;}
+.__wr_switch{position:relative;width:38px;height:22px;}
+.__wr_switch input{opacity:0;width:0;height:0;}
+.__wr_slider{position:absolute;inset:0;background:#3a3a3c;border-radius:22px;cursor:pointer;transition:.2s;}
+.__wr_slider::before{content:"";position:absolute;height:16px;width:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.__wr_switch input:checked + .__wr_slider{background:#0a84ff;}
+.__wr_switch input:checked + .__wr_slider::before{transform:translateX(16px);}
+.__wr_radio-row{display:flex;gap:10px;flex-wrap:wrap;}
+.__wr_radio-row label{display:inline-flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);transition:.15s;}
+.__wr_radio-row label.selected{border-color:#0a84ff;background:rgba(10,132,255,.15);color:#0a84ff;}
+.__wr_radio-row input{display:none;}
+.__wr_custom-row{display:none;gap:6px;align-items:center;margin-top:6px;}
+.__wr_custom-row.show{display:flex;}
+.__wr_custom-row input{width:70px;padding:5px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#fff;font-size:13px;text-align:center;}
+.__wr_custom-row input:focus{border-color:#0a84ff;outline:none;}
+.__wr_select{padding:6px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#fff;font-size:13px;min-width:160px;cursor:pointer;}
+.__wr_select:focus{border-color:#0a84ff;outline:none;}
+.__wr_test-row{display:flex;gap:6px;margin-top:8px;}
+.__wr_btn{padding:6px 12px;background:#0a84ff;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+.__wr_btn:hover{background:#409cff;}
+.__wr_btn.secondary{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);}
+.__wr_btn.secondary:hover{background:rgba(255,255,255,.18);}
+.__wr_countdown{text-align:center;padding:10px;background:rgba(0,0,0,.3);border-radius:8px;margin-top:8px;font-size:11px;color:rgba(255,255,255,.6);}
+.__wr_countdown .time{font-size:18px;font-weight:700;color:#0a84ff;display:block;margin-top:2px;}
+</style>
+
+<div class="__wr_drawer" id="__wrDrawer">
+  <div class="__wr_drawer-toggle">
+    <span><i class="fa-solid fa-droplet"></i> 喝水提醒 <span id="__wrStatus" style="opacity:.6;font-size:11px;">加载中…</span></span>
+    <span class="chevron fa-solid fa-chevron-down"></span>
+  </div>
+  <div class="__wr_drawer-content">
+    <div class="__wr_switch-row">
+      <label for="__wrEnabled">
+        <i class="fa-solid fa-droplet" style="opacity:.7;margin-right:4px;"></i>
+        启用提醒
+      </label>
+      <label class="__wr_switch"><input type="checkbox" id="__wrEnabled"><span class="__wr_slider"></span></label>
+    </div>
+    <div class="__wr_section">
+      <div class="__wr_label"><i class="fa-regular fa-clock" style="margin-right:4px;"></i>提醒间隔</div>
+      <div class="__wr_radio-row">
+        <label><input type="radio" name="wrInterval" value="30">30 分钟</label>
+        <label><input type="radio" name="wrInterval" value="60">1 小时</label>
+        <label><input type="radio" name="wrInterval" value="0">自定义</label>
+      </div>
+      <div class="__wr_custom-row" id="__wrCustomRow">
+        <span style="font-size:12px;color:rgba(255,255,255,.6);">每</span>
+        <input type="number" id="__wrCustomMin" min="5" max="360" step="10">
+        <span style="font-size:12px;color:rgba(255,255,255,.6);">分钟</span>
+      </div>
+    </div>
+    <div class="__wr_section">
+      <div class="__wr_label"><i class="fa-solid fa-bell" style="margin-right:4px;"></i>提醒方式</div>
+      <select class="__wr_select" id="__wrAlertMode">
+        <option value="tritone">Tri-Tone（三声叮）</option>
+        <option value="rebound">Rebound（弹跳音）</option>
+        <option value="vibrate">手机震动</option>
+        <option value="tritone+vibrate">Tri-Tone + 震动</option>
+        <option value="rebound+vibrate">Rebound + 震动</option>
+        <option value="silent">只看 Toast（静默）</option>
+      </select>
+      <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:4px;">💡 震动仅支持 Android 浏览器，iOS 不支持（会自动降级为无震动）</div>
+      <div class="__wr_test-row">
+        <button class="__wr_btn secondary" id="__wrTestAlert">🔊 试听一下</button>
+      </div>
+    </div>
+    <div class="__wr_section">
+      <div class="__wr_countdown">
+        下次提醒还有<span class="time" id="__wrCount">--:--</span>
+      </div>
+      <div class="__wr_test-row">
+        <button class="__wr_btn" id="__wrDrinkNow">✅ 我刚喝了水（重置计时）</button>
+      </div>
+    </div>
+  </div>
+</div>
