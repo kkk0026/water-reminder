@@ -1,6 +1,6 @@
 /**
  * 喝水提醒 - SillyTavern 原生扩展
- * 版本: 1.0.3
+ * 版本: 1.0.4
  * 安装: 酒馆设置 → 扩展 → 粘贴 GitHub 仓库地址 → 安装
  */
 
@@ -134,12 +134,10 @@
 
     // --- 事件绑定（settings.html 可能稍后才渲染，轮询等待） ---
     function tryBindSettings() {
-      const drawer = q('__wrDrawer');
-      if (!drawer || drawer.dataset.bound) return false;
-      drawer.dataset.bound = '1';
-
-      // 抽屉开关
-      drawer.querySelector('.__wr_drawer-toggle').addEventListener('click', () => drawer.classList.toggle('open'));
+      // 用 inline-drawer 原生组件，酒馆 JS 自动处理折叠
+      const bound = document.querySelector('.__wr_settings');
+      if (!bound || bound.dataset.bound) return false;
+      bound.dataset.bound = '1';
 
       // 启用开关
       q('__wrEnabled').addEventListener('change', (e) => {
