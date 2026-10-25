@@ -1,0 +1,296 @@
+/**
+ * 喝水提醒 - SillyTavern 原生扩展
+ * 版本: 1.0.0
+ * 安装: 酒馆设置 → 扩展 → 粘贴 GitHub 仓库地址 → 安装
+ */
+
+(function () {
+  'use strict';
+
+  // ========== 配置（localStorage） ==========
+  const LS_KEY = '__wrCfg';
+  const DEFAULT_CFG = {
+    enabled: true,
+    intervalPreset: 30,
+    intervalCustom: 45,
+    alertMode: 'tritone',
+    lastDrink: Date.now(),
+  };
+  function loadCfg() { try { return { ...DEFAULT_CFG, ...JSON.parse(localStorage.getItem(LS_KEY)) }; } catch { return { ...DEFAULT_CFG }; } }
+  function saveCfg() { try { localStorage.setItem(LS_KEY, JSON.stringify(CFG)); } catch {} }
+  let CFG = loadCfg();
+
+  function getIntervalMin() {
+    return CFG.intervalPreset === 0 ? CFG.intervalCustom : CFG.intervalPreset;
+  }
+
+  // ========== Toast & Intro HTML（运行时注入到 body） ==========
+  const TOAST_CSS = `
+.__wr_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-30px);
+  background:linear-gradient(135deg,#0a84ff,#0066cc);color:#fff;padding:14px 18px;border-radius:12px;
+  box-shadow:0 10px 40px rgba(10,132,255,.5);z-index:9999999;opacity:0;pointer-events:none;
+  transition:opacity .3s,transform .3s;font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  display:flex;align-items:center;gap:12px;min-width:260px;max-width:400px;}
+.__wr_toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;animation:__wr_pulse 2s ease-in-out infinite;}
+@keyframes __wr_pulse{0%,100%{box-shadow:0 10px 40px rgba(10,132,255,.5);}50%{box-shadow:0 10px 60px rgba(10,132,255,.9);}}
+.__wr_toast .__wr_icon{font-size:28px;animation:__wr_bob 1s ease-in-out infinite;}
+@keyframes __wr_bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+.__wr_toast .__wr_msg{flex:1;}
+.__wr_toast .__wr_msg b{display:block;font-size:14px;margin-bottom:1px;}
+.__wr_toast .__wr_msg span{font-size:11px;opacity:.85;}
+.__wr_toast .__wr_drink{background:rgba(255,255,255,.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.35);
+  color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.__wr_toast .__wr_drink:hover{background:rgba(255,255,255,.3);}
+.__wr_toast .__wr_tiny{background:transparent;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;padding:4px;}
+.__wr_toast .__wr_tiny:hover{color:#fff;}
+.__wr_intro{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.85);color:#fff;padding:10px 16px;border-radius:20px;
+  font-size:12px;z-index:9999999;opacity:0;transition:opacity .5s;
+  backdrop-filter:blur(10px);}
+.__wr_intro.show{opacity:1;}
+`;
+
+  const TOAST_HTML = `
+<div class="__wr_toast" id="__wrToast">
+  <div class="__wr_icon">💧</div>
+  <div class="__wr_msg">
+    <b>该喝水啦！</b>
+    <span id="__wrToastSub">距离上次喝水已经过去很久了～</span>
+  </div>
+  <button class="__wr_drink" id="__wrToastDrink">已喝水</button>
+  <button class="__wr_tiny" id="__wrToastLater">稍后</button>
+  <button class="__wr_tiny" id="__wrToastCfg">⚙️</button>
+</div>
+<div class="__wr_intro" id="__wrIntro">💧 喝水提醒已启动，${getIntervalMin()} 分钟后第一次提醒</div>
+`;
+
+  function waitBody(cb) {
+    if (document.body) cb();
+    else new MutationObserver((mut, obs) => {
+      if (document.body) { obs.disconnect(); cb(); }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  waitBody(() => {
+    // 注入 Toast CSS + HTML
+    const style = document.createElement('style');
+    style.textContent = TOAST_CSS;
+    document.head.appendChild(style);
+    document.body.insertAdjacentHTML('beforeend', TOAST_HTML);
+
+    init();
+  });
+
+  // ========== 主逻辑 ==========
+  function init() {
+    const toast = document.getElementById('__wrToast');
+    const toastDrink = document.getElementById('__wrToastDrink');
+    const toastLater = document.getElementById('__wrToastLater');
+    const toastCfg = document.getElementById('__wrToastCfg');
+    const intro = document.getElementById('__wrIntro');
+
+    function q(id) { return document.getElementById(id); }
+
+    // --- 事件绑定（settings.html 可能稍后才渲染，轮询等待） ---
+    function tryBindSettings() {
+      const drawer = q('__wrDrawer');
+      if (!drawer || drawer.dataset.bound) return false;
+      drawer.dataset.bound = '1';
+
+      // 抽屉开关
+      drawer.querySelector('.__wr_drawer-toggle').addEventListener('click', () => drawer.classList.toggle('open'));
+
+      // 启用开关
+      q('__wrEnabled').addEventListener('change', (e) => {
+        CFG.enabled = e.target.checked;
+        if (CFG.enabled) CFG.lastDrink = Date.now();
+        saveCfg();
+        refreshDrawer();
+      });
+
+      // radio
+      document.querySelectorAll('input[name="wrInterval"]').forEach(r => {
+        r.addEventListener('change', () => {
+          CFG.intervalPreset = parseInt(r.value);
+          saveCfg();
+          refreshDrawer();
+          updateCountdown();
+        });
+      });
+
+      // 自定义输入
+      q('__wrCustomMin').addEventListener('change', (e) => {
+        let v = parseInt(e.target.value);
+        if (isNaN(v) || v < 5) v = 5;
+        if (v > 360) v = 360;
+        CFG.intervalCustom = v;
+        saveCfg();
+        updateCountdown();
+      });
+
+      // 提醒方式
+      q('__wrAlertMode').addEventListener('change', (e) => {
+        CFG.alertMode = e.target.value;
+        saveCfg();
+      });
+
+      // 试听
+      q('__wrTestAlert').addEventListener('click', () => triggerAlert());
+
+      // 喝水按钮
+      q('__wrDrinkNow').addEventListener('click', () => {
+        CFG.lastDrink = Date.now();
+        saveCfg();
+        hideToast();
+        updateCountdown();
+      });
+
+      refreshDrawer();
+      return true;
+    }
+
+    function refreshDrawer() {
+      const status = CFG.enabled ? '🟢' : '⚫';
+      q('__wrStatus').textContent = `· ${getIntervalMin()}分钟 · ${status}`;
+      const el = q('__wrEnabled'); if (el) el.checked = CFG.enabled;
+      document.querySelectorAll('input[name="wrInterval"]').forEach(r => {
+        const checked = (parseInt(r.value) === CFG.intervalPreset);
+        r.checked = checked;
+        const lbl = r.closest('label');
+        if (lbl) lbl.classList.toggle('selected', checked);
+      });
+      const cm = q('__wrCustomMin'); if (cm) cm.value = CFG.intervalCustom;
+      const cr = q('__wrCustomRow'); if (cr) cr.classList.toggle('show', CFG.intervalPreset === 0);
+      const am = q('__wrAlertMode'); if (am) am.value = CFG.alertMode;
+    }
+
+    // 定时等待设置面板渲染
+    const bindTimer = setInterval(() => {
+      tryBindSettings();
+      if (q('__wrDrawer') && q('__wrDrawer').dataset.bound) clearInterval(bindTimer);
+    }, 300);
+    setTimeout(() => clearInterval(bindTimer), 15000);
+
+    // toast 按钮
+    toastDrink.addEventListener('click', () => {
+      CFG.lastDrink = Date.now();
+      saveCfg();
+      hideToast();
+      if (q('__wrDrawer')) refreshDrawer();
+      updateCountdown();
+    });
+    toastLater.addEventListener('click', () => {
+      hideToast();
+      CFG.lastDrink = Date.now() - (getIntervalMin() * 60 * 1000) + (10 * 60 * 1000);
+      saveCfg();
+    });
+    toastCfg.addEventListener('click', () => {
+      const drawer = q('__wrDrawer');
+      if (drawer) { drawer.classList.add('open'); drawer.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      else alert('请打开酒馆【设置 → 扩展】面板查找"喝水提醒"');
+    });
+
+    // 首次加载提示
+    intro.classList.add('show');
+    setTimeout(() => intro.classList.remove('show'), 3500);
+
+    // 全局配置入口
+    window.__wrConfig = () => {
+      const drawer = q('__wrDrawer');
+      if (drawer) { drawer.classList.add('open'); drawer.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      else alert('设置面板还没加载出来');
+    };
+
+    // 主循环：每秒检查
+    let lastRemindedAt = 0;
+    setInterval(() => {
+      updateCountdown();
+      if (!CFG.enabled) return;
+      const now = Date.now();
+      const intervalMs = getIntervalMin() * 60 * 1000;
+      if (now - CFG.lastDrink >= intervalMs) {
+        if (now - lastRemindedAt >= 60000) {
+          showToast();
+          triggerAlert();
+          lastRemindedAt = now;
+        }
+      } else {
+        hideToast();
+      }
+    }, 1000);
+
+    function updateCountdown() {
+      const el = q('__wrCount');
+      if (!el) return;
+      const r = getIntervalMin() * 60000 - (Date.now() - CFG.lastDrink);
+      if (r <= 0) el.textContent = '该喝了！';
+      else {
+        const m = Math.floor(r / 60000), s = Math.floor((r % 60000) / 1000);
+        el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }
+    }
+
+    function showToast() { toast.classList.add('show'); }
+    function hideToast() { toast.classList.remove('show'); }
+
+    // ========== 声音 & 震动 ==========
+    let audioCtx = null;
+    function warmAudio() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      } catch {}
+    }
+    function playTriTone() {
+      warmAudio(); if (!audioCtx) return;
+      [784, 659, 523].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.value = freq;
+        const t0 = audioCtx.currentTime + i * 0.18;
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.35, t0 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.15);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(t0); osc.stop(t0 + 0.2);
+      });
+    }
+    function playRebound() {
+      warmAudio(); if (!audioCtx) return;
+      // 音1: 820→380Hz 下滑 0.12s
+      const o1 = audioCtx.createOscillator(), g1 = audioCtx.createGain();
+      o1.type = 'sine'; o1.frequency.setValueAtTime(820, audioCtx.currentTime);
+      o1.frequency.exponentialRampToValueAtTime(380, audioCtx.currentTime + 0.12);
+      g1.gain.setValueAtTime(0, audioCtx.currentTime);
+      g1.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.02);
+      g1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+      o1.connect(g1); g1.connect(audioCtx.destination);
+      o1.start(); o1.stop(audioCtx.currentTime + 0.13);
+      // 音2: 0.16s 后 500→960Hz 上滑 0.1s
+      const t2 = audioCtx.currentTime + 0.16;
+      const o2 = audioCtx.createOscillator(), g2 = audioCtx.createGain();
+      o2.type = 'sine'; o2.frequency.setValueAtTime(500, t2);
+      o2.frequency.exponentialRampToValueAtTime(960, t2 + 0.1);
+      g2.gain.setValueAtTime(0, t2);
+      g2.gain.linearRampToValueAtTime(0.35, t2 + 0.02);
+      g2.gain.exponentialRampToValueAtTime(0.001, t2 + 0.1);
+      o2.connect(g2); g2.connect(audioCtx.destination);
+      o2.start(t2); o2.stop(t2 + 0.12);
+    }
+    function vibrate() {
+      if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        try { navigator.vibrate([300, 100, 300, 100, 300]); } catch {}
+      }
+    }
+    function triggerAlert() {
+      warmAudio();
+      const m = CFG.alertMode;
+      if (m === 'tritone') playTriTone();
+      else if (m === 'rebound') playRebound();
+      else if (m === 'vibrate') vibrate();
+      else if (m === 'tritone+vibrate') { vibrate(); setTimeout(playTriTone, 200); }
+      else if (m === 'rebound+vibrate') { vibrate(); setTimeout(playRebound, 200); }
+    }
+
+    console.log('[喝水提醒] 已加载 · 间隔', getIntervalMin(), '分钟 · 模式', CFG.alertMode);
+  }
+})();
