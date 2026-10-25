@@ -30,23 +30,35 @@
 
   // ========== Toast & Intro HTML（运行时注入到 body） ==========
   const TOAST_CSS = `
-.__wr_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-30px);
-  background:linear-gradient(135deg,#0a84ff,#0066cc);color:#fff;padding:14px 18px;border-radius:12px;
-  box-shadow:0 10px 40px rgba(10,132,255,.5);z-index:9999999;opacity:0;pointer-events:none;
-  transition:opacity .3s,transform .3s;font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  display:flex;align-items:center;gap:12px;min-width:260px;max-width:400px;}
-.__wr_toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;animation:__wr_pulse 2s ease-in-out infinite;}
-@keyframes __wr_pulse{0%,100%{box-shadow:0 10px 40px rgba(10,132,255,.5);}50%{box-shadow:0 10px 60px rgba(10,132,255,.9);}}
-.__wr_toast .__wr_icon{font-size:28px;animation:__wr_bob 1s ease-in-out infinite;}
-@keyframes __wr_bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
-.__wr_toast .__wr_msg{flex:1;}
-.__wr_toast .__wr_msg b{display:block;font-size:14px;margin-bottom:1px;}
-.__wr_toast .__wr_msg span{font-size:11px;opacity:.85;}
-.__wr_toast .__wr_drink{background:rgba(255,255,255,.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.35);
-  color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
-.__wr_toast .__wr_drink:hover{background:rgba(255,255,255,.3);}
-.__wr_toast .__wr_tiny{background:transparent;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:12px;padding:4px;}
-.__wr_toast .__wr_tiny:hover{color:#fff;}
+.__wr_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);
+  width:340px;padding:14px 18px;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);
+  opacity:0;pointer-events:none;z-index:9999999;
+  transition:all .4s cubic-bezier(.2,.8,.2,1);
+  display:flex;align-items:center;gap:14px;color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",system-ui,sans-serif;}
+.__wr_toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.__wr_toast .__wr_pulse{position:absolute;top:14px;left:14px;width:8px;height:8px;border-radius:50%;
+  background:#38bdf8;opacity:.6;animation:__wr_pulse_dot 2s ease-out infinite;}
+@keyframes __wr_pulse_dot{0%{transform:scale(1);opacity:.6;}100%{transform:scale(3.5);opacity:0;}}
+.__wr_toast .__wr_dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
+  box-shadow:0 0 12px rgba(56,189,248,.6);}
+.__wr_toast .__wr_content{flex:1;min-width:0;}
+.__wr_toast .__wr_title{font-size:13px;font-weight:600;letter-spacing:.3px;}
+.__wr_toast .__wr_sub{font-size:11px;opacity:.5;margin-top:2px;}
+.__wr_toast .__wr_btn_group{display:flex;gap:6px;flex-shrink:0;}
+.__wr_toast .__wr_mini{padding:6px 12px;border-radius:8px;border:none;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;}
+.__wr_toast .__wr_mini.primary{background:linear-gradient(135deg,#38bdf8,#0284c7);color:#fff;}
+.__wr_toast .__wr_mini.primary:hover{filter:brightness(1.15);}
+.__wr_toast .__wr_mini.ghost{background:transparent;color:rgba(255,255,255,.5);
+  border:1px solid rgba(255,255,255,.08);}
+.__wr_toast .__wr_mini.ghost:hover{color:#fff;border-color:rgba(255,255,255,.2);}
 .__wr_intro{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
   background:rgba(0,0,0,.85);color:#fff;padding:10px 16px;border-radius:20px;
   font-size:12px;z-index:9999999;opacity:0;transition:opacity .5s;
@@ -56,14 +68,17 @@
 
   const TOAST_HTML = `
 <div class="__wr_toast" id="__wrToast">
-  <div class="__wr_icon">💧</div>
-  <div class="__wr_msg">
-    <b>该喝水啦！</b>
-    <span id="__wrToastSub">距离上次喝水已经过去很久了～</span>
+  <span class="__wr_pulse"></span>
+  <span class="__wr_dot"></span>
+  <div class="__wr_content">
+    <div class="__wr_title">该喝水啦</div>
+    <div class="__wr_sub" id="__wrToastSub">距离上次喝水已经过去很久了</div>
   </div>
-  <button class="__wr_drink" id="__wrToastDrink">已喝水</button>
-  <button class="__wr_tiny" id="__wrToastLater">稍后</button>
-  <button class="__wr_tiny" id="__wrToastCfg">⚙️</button>
+  <div class="__wr_btn_group">
+    <button class="__wr_mini ghost" id="__wrToastLater">稍后</button>
+    <button class="__wr_mini ghost" id="__wrToastCfg">⚙️</button>
+    <button class="__wr_mini primary" id="__wrToastDrink">已喝水</button>
+  </div>
 </div>
 <div class="__wr_intro" id="__wrIntro">💧 喝水提醒已启动，${getIntervalMin()} 分钟后第一次提醒</div>
 `;
