@@ -1,6 +1,6 @@
 /**
  * 喝水提醒 - SillyTavern 原生扩展
- * 版本: 1.0.4
+ * 版本: 1.0.5
  * 安装: 酒馆设置 → 扩展 → 粘贴 GitHub 仓库地址 → 安装
  */
 
@@ -32,37 +32,37 @@
   const TOAST_CSS = `
 .__wr_toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);
   width:340px;padding:14px 18px;
-  background:rgba(255,255,255,.04);
-  backdrop-filter:blur(24px) saturate(180%);
-  -webkit-backdrop-filter:blur(24px) saturate(180%);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;
-  box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);
+  background:var(--SmartThemeBodyColor,#1a1a20);
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
+  border-radius:12px;
+  box-shadow:0 6px 24px rgba(0,0,0,.25);
   opacity:0;pointer-events:none;z-index:9999999;
   transition:all .4s cubic-bezier(.2,.8,.2,1);
-  display:flex;align-items:center;gap:14px;color:#fff;
+  display:flex;align-items:center;gap:14px;
+  color:var(--SmartThemeBodyColor,#fff);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",system-ui,sans-serif;}
 .__wr_toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
 .__wr_toast .__wr_pulse{position:absolute;top:14px;left:14px;width:8px;height:8px;border-radius:50%;
-  background:#38bdf8;opacity:.6;animation:__wr_pulse_dot 2s ease-out infinite;}
+  background:var(--SmartThemeAccentColor,#0a84ff);opacity:.6;animation:__wr_pulse_dot 2s ease-out infinite;}
 @keyframes __wr_pulse_dot{0%{transform:scale(1);opacity:.6;}100%{transform:scale(3.5);opacity:0;}}
 .__wr_toast .__wr_dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-  box-shadow:0 0 12px rgba(56,189,248,.6);}
+  background:var(--SmartThemeAccentColor,#0a84ff);}
 .__wr_toast .__wr_content{flex:1;min-width:0;}
 .__wr_toast .__wr_title{font-size:13px;font-weight:600;letter-spacing:.3px;}
-.__wr_toast .__wr_sub{font-size:11px;opacity:.5;margin-top:2px;}
+.__wr_toast .__wr_sub{font-size:11px;opacity:.6;margin-top:2px;}
 .__wr_toast .__wr_btn_group{display:flex;gap:6px;flex-shrink:0;}
 .__wr_toast .__wr_mini{padding:6px 12px;border-radius:8px;border:none;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;}
-.__wr_toast .__wr_mini.primary{background:linear-gradient(135deg,#38bdf8,#0284c7);color:#fff;}
+.__wr_toast .__wr_mini.primary{background:var(--SmartThemeAccentColor,#0a84ff);color:#fff;}
 .__wr_toast .__wr_mini.primary:hover{filter:brightness(1.15);}
-.__wr_toast .__wr_mini.ghost{background:transparent;color:rgba(255,255,255,.5);
-  border:1px solid rgba(255,255,255,.08);}
-.__wr_toast .__wr_mini.ghost:hover{color:#fff;border-color:rgba(255,255,255,.2);}
+.__wr_toast .__wr_mini.ghost{background:transparent;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.6));
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));}
+.__wr_toast .__wr_mini.ghost:hover{color:var(--SmartThemeBodyColor,#fff);border-color:var(--SmartThemeAccentColor,#0a84ff);}
 .__wr_intro{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.85);color:#fff;padding:10px 16px;border-radius:20px;
+  background:var(--SmartThemeBodyColor,#1a1a20);
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
+  color:var(--SmartThemeBodyColor,#fff);padding:10px 16px;border-radius:20px;
   font-size:12px;z-index:9999999;opacity:0;transition:opacity .5s;
-  backdrop-filter:blur(10px);}
+  box-shadow:0 4px 16px rgba(0,0,0,.2);}
 .__wr_intro.show{opacity:1;}
 `;
 
