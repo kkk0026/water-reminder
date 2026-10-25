@@ -1,6 +1,6 @@
 /**
  * 喝水提醒 - SillyTavern 原生扩展
- * 版本: 1.0.5
+ * 版本: 1.0.6
  * 安装: 酒馆设置 → 扩展 → 粘贴 GitHub 仓库地址 → 安装
  */
 
@@ -35,11 +35,11 @@
   background:var(--SmartThemeBodyColor,#1a1a20);
   border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
   border-radius:12px;
-  box-shadow:0 6px 24px rgba(0,0,0,.25);
+  box-shadow:0 6px 24px rgba(0,0,0,.15);
   opacity:0;pointer-events:none;z-index:9999999;
   transition:all .4s cubic-bezier(.2,.8,.2,1);
   display:flex;align-items:center;gap:14px;
-  color:var(--SmartThemeBodyColor,#fff);
+  color:var(--SmartThemeEmColor,#fff);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",system-ui,sans-serif;}
 .__wr_toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
 .__wr_toast .__wr_pulse{position:absolute;top:14px;left:14px;width:8px;height:8px;border-radius:50%;
@@ -49,7 +49,7 @@
   background:var(--SmartThemeAccentColor,#0a84ff);}
 .__wr_toast .__wr_content{flex:1;min-width:0;}
 .__wr_toast .__wr_title{font-size:13px;font-weight:600;letter-spacing:.3px;}
-.__wr_toast .__wr_sub{font-size:11px;opacity:.6;margin-top:2px;}
+.__wr_toast .__wr_sub{font-size:11px;opacity:.7;margin-top:2px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.6));}
 .__wr_toast .__wr_btn_group{display:flex;gap:6px;flex-shrink:0;}
 .__wr_toast .__wr_mini{padding:6px 12px;border-radius:8px;border:none;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;}
 .__wr_toast .__wr_mini.primary{background:var(--SmartThemeAccentColor,#0a84ff);color:#fff;}
