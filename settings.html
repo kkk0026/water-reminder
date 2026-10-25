@@ -1,172 +1,128 @@
 <div class="__wr_settings" data-extension-name="water-reminder">
 <style>
-.__wr_settings{margin:10px 0;}
-
-/* ===== 抽屉容器 ===== */
-.__wr_drawer{
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;
-  overflow:hidden;
-  background:rgba(255,255,255,.03);
-  backdrop-filter:blur(20px) saturate(160%);
-  -webkit-backdrop-filter:blur(20px) saturate(160%);
-  box-shadow:0 4px 24px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.05);
-  transition:border-color .2s;
-}
-.__wr_drawer:hover{border-color:rgba(255,255,255,.14);}
-
-/* ===== 抽屉标题栏 ===== */
-.__wr_drawer-toggle{
-  padding:14px 18px;
-  display:flex;align-items:center;gap:10px;
-  cursor:pointer;user-select:none;justify-content:space-between;
-  font-weight:600;font-size:13px;letter-spacing:.3px;
-  color:#fff;
-  transition:background .2s;
-}
-.__wr_drawer-toggle:hover{background:rgba(255,255,255,.03);}
-.__wr_drawer-toggle span:first-child{display:flex;align-items:center;gap:10px;}
-.__wr_drawer-toggle .chevron{transition:transform .35s cubic-bezier(.2,.8,.2,1);font-size:11px;opacity:.5;}
-.__wr_drawer.open .chevron{transform:rotate(180deg);opacity:.8;}
-
-/* ===== 抽屉内容 ===== */
-.__wr_drawer-content{
-  display:none;
-  padding:18px;
-  background:rgba(0,0,0,.12);
-  border-top:1px solid rgba(255,255,255,.06);
-}
-.__wr_drawer.open .__wr_drawer-content{display:block;animation:__wr_fade .25s ease-out;}
-@keyframes __wr_fade{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
-
-.__wr_section{margin-bottom:18px;}
-.__wr_section:last-child{margin-bottom:0;}
-.__wr_label{
+/* ===== 内部表单控件样式（用酒馆 CSS 变量适配皮肤）===== */
+.__wr_settings .__wr_section{margin:14px 0;}
+.__wr_settings .__wr_section:last-child{margin-bottom:0;}
+.__wr_settings .__wr_label{
   display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;
-  color:rgba(255,255,255,.4);margin-bottom:10px;
+  color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));margin-bottom:8px;
 }
 
-/* ===== 开关行 ===== */
-.__wr_switch-row{
+/* --- Toggle 开关 --- */
+.__wr_settings .__wr_switch-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;margin-bottom:18px;
-  background:rgba(255,255,255,.02);
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:12px;
+  padding:10px 12px;margin-bottom:14px;
+  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.15));
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.1));
+  border-radius:8px;
 }
-.__wr_switch-row label[for="__wrEnabled"]{
-  font-size:13px;display:flex;align-items:center;gap:6px;color:#fff;
+.__wr_settings .__wr_switch-row label[for="__wrEnabled"]{
+  font-size:13px;color:var(--SmartThemeBodyColor,#fff);
 }
-
-/* ===== Toggle 开关 ===== */
-.__wr_switch{position:relative;width:40px;height:22px;flex-shrink:0;}
-.__wr_switch input{opacity:0;width:0;height:0;}
-.__wr_slider{
-  position:absolute;inset:0;background:rgba(255,255,255,.12);
-  border-radius:22px;cursor:pointer;transition:.3s cubic-bezier(.2,.8,.2,1);
+.__wr_settings .__wr_switch{position:relative;width:40px;height:22px;flex-shrink:0;}
+.__wr_settings .__wr_switch input{opacity:0;width:0;height:0;}
+.__wr_settings .__wr_slider{
+  position:absolute;inset:0;background:rgba(128,128,128,.4);
+  border-radius:22px;cursor:pointer;transition:.25s;
 }
-.__wr_slider::before{
+.__wr_settings .__wr_slider::before{
   content:"";position:absolute;height:18px;width:18px;left:2px;top:2px;
-  background:#fff;border-radius:50%;transition:.3s cubic-bezier(.2,.8,.2,1);
-  box-shadow:0 1px 4px rgba(0,0,0,.3);
+  background:#fff;border-radius:50%;transition:.25s;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
 }
-.__wr_switch input:checked + .__wr_slider{
-  background:linear-gradient(135deg,#38bdf8,#0284c7);
-  box-shadow:0 0 0 1px rgba(56,189,248,.3);
+.__wr_settings .__wr_switch input:checked + .__wr_slider{
+  background:var(--SmartThemeAccentColor,#0a84ff);
 }
-.__wr_switch input:checked + .__wr_slider::before{transform:translateX(18px);}
+.__wr_settings .__wr_switch input:checked + .__wr_slider::before{transform:translateX(18px);}
 
-/* ===== Radio 预设按钮 ===== */
-.__wr_radio-row{display:flex;gap:8px;flex-wrap:wrap;}
-.__wr_radio-row label{
-  display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;
-  cursor:pointer;padding:8px 14px;border-radius:10px;
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.02);
-  color:rgba(255,255,255,.6);
-  transition:all .2s;
+/* --- Radio 预设按钮 --- */
+.__wr_settings .__wr_radio-row{display:flex;gap:8px;flex-wrap:wrap;}
+.__wr_settings .__wr_radio-row label{
+  display:inline-flex;align-items:center;font-size:12px;font-weight:500;
+  cursor:pointer;padding:6px 14px;border-radius:8px;
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
+  background:transparent;
+  color:var(--SmartThemeBodyColor,rgba(255,255,255,.7));
+  transition:.15s;
 }
-.__wr_radio-row label:hover{border-color:rgba(255,255,255,.2);color:#fff;background:rgba(255,255,255,.04);}
-.__wr_radio-row label.selected{
-  border-color:rgba(56,189,248,.5);
-  background:linear-gradient(135deg,rgba(56,189,248,.18),rgba(2,132,199,.1));
-  color:#7dd3fc;
-  box-shadow:0 0 0 1px rgba(56,189,248,.2),inset 0 1px 0 rgba(255,255,255,.08);
+.__wr_settings .__wr_radio-row label:hover{
+  border-color:var(--SmartThemeAccentColor,#0a84ff);
 }
-.__wr_radio-row input{display:none;}
+.__wr_settings .__wr_radio-row label.selected{
+  border-color:var(--SmartThemeAccentColor,#0a84ff);
+  background:var(--SmartThemeAccentColor,rgba(10,132,255,.15));
+  color:var(--SmartThemeBodyColor,#fff);
+}
+.__wr_settings .__wr_radio-row input{display:none;}
 
-/* ===== 自定义输入 ===== */
-.__wr_custom-row{display:none;gap:6px;align-items:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,.5);}
-.__wr_custom-row.show{display:flex;}
-.__wr_custom-row input{
-  width:64px;padding:6px 10px;
-  background:rgba(0,0,0,.25);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:8px;color:#fff;font-size:13px;font-weight:600;text-align:center;
-  transition:all .2s;
+/* --- 自定义输入 --- */
+.__wr_settings .__wr_custom-row{display:none;gap:6px;align-items:center;margin-top:8px;font-size:12px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));}
+.__wr_settings .__wr_custom-row.show{display:flex;}
+.__wr_settings .__wr_custom-row input{
+  width:60px;padding:5px 8px;
+  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.2));
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
+  border-radius:6px;color:var(--SmartThemeBodyColor,#fff);
+  font-size:13px;text-align:center;
 }
-.__wr_custom-row input:focus{border-color:#38bdf8;outline:none;box-shadow:0 0 0 3px rgba(56,189,248,.15);}
+.__wr_settings .__wr_custom-row input:focus{
+  border-color:var(--SmartThemeAccentColor,#0a84ff);outline:none;
+}
 
-/* ===== Select 下拉 ===== */
-.__wr_select{
-  padding:9px 14px;
-  background:rgba(0,0,0,.25);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:10px;color:#fff;font-size:12px;font-weight:500;
-  min-width:200px;cursor:pointer;appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,.5)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;
-  padding-right:32px;
-  transition:all .2s;
+/* --- Select --- */
+.__wr_settings .__wr_select{
+  padding:7px 12px;
+  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.2));
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.15));
+  border-radius:6px;color:var(--SmartThemeBodyColor,#fff);
+  font-size:12px;min-width:180px;cursor:pointer;
 }
-.__wr_select:focus{border-color:#38bdf8;outline:none;box-shadow:0 0 0 3px rgba(56,189,248,.15);}
-.__wr_select option{background:#1a1a20;color:#fff;}
+.__wr_settings .__wr_select:focus{
+  border-color:var(--SmartThemeAccentColor,#0a84ff);outline:none;
+}
 
-/* ===== 按钮 ===== */
-.__wr_test-row{display:flex;gap:8px;margin-top:10px;}
-.__wr_btn{
-  padding:9px 16px;
-  background:linear-gradient(135deg,#38bdf8,#0284c7);
-  color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;
-  box-shadow:0 2px 8px rgba(14,165,233,.25);
-  transition:all .2s;
+/* --- 按钮 --- */
+.__wr_settings .__wr_test-row{display:flex;gap:6px;margin-top:8px;}
+.__wr_settings .__wr_btn{
+  padding:7px 14px;
+  background:var(--SmartThemeAccentColor,#0a84ff);
+  color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;
+  transition:.15s;
 }
-.__wr_btn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 14px rgba(14,165,233,.4);}
-.__wr_btn.secondary{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.1);
-  box-shadow:none;color:rgba(255,255,255,.7);
+.__wr_settings .__wr_btn:hover{filter:brightness(1.1);}
+.__wr_settings .__wr_btn.secondary{
+  background:transparent;
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.2));
+  color:var(--SmartThemeBodyColor,rgba(255,255,255,.8));
 }
-.__wr_btn.secondary:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.2);transform:none;}
+.__wr_settings .__wr_btn.secondary:hover{
+  border-color:var(--SmartThemeAccentColor,#0a84ff);
+}
 
-/* ===== 倒计时卡片 ===== */
-.__wr_countdown{
-  text-align:center;padding:18px 12px;
-  background:rgba(255,255,255,.02);
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:14px;
-  font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px;
-  text-transform:uppercase;
+/* --- 倒计时 --- */
+.__wr_settings .__wr_countdown{
+  text-align:center;padding:14px;
+  background:var(--SmartThemeBlurTintColor,rgba(0,0,0,.15));
+  border:1px solid var(--SmartThemeBorderColor,rgba(255,255,255,.1));
+  border-radius:10px;
+  font-size:11px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));
 }
-.__wr_countdown .time{
-  font-size:28px;font-weight:700;letter-spacing:2px;
-  background:linear-gradient(135deg,#7dd3fc,#38bdf8);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  display:block;margin-top:6px;font-variant-numeric:tabular-nums;
+.__wr_settings .__wr_countdown .time{
+  font-size:24px;font-weight:700;letter-spacing:1px;
+  color:var(--SmartThemeAccentColor,#0a84ff);
+  display:block;margin-top:4px;font-variant-numeric:tabular-nums;
 }
 </style>
 
-<div class="__wr_drawer" id="__wrDrawer">
-  <div class="__wr_drawer-toggle">
-    <span><i class="fa-solid fa-droplet" style="color:#38bdf8;"></i> 喝水提醒 <span id="__wrStatus" style="opacity:.45;font-size:10px;letter-spacing:1px;text-transform:uppercase;">加载中</span></span>
-    <span class="chevron fa-solid fa-chevron-down"></span>
+<div class="inline-drawer">
+  <div class="inline-drawer-toggle inline-drawer-header">
+    <b>💧 喝水提醒</b>
+    <span id="__wrStatus" style="margin-left:8px;font-size:11px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.5));"></span>
+    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
   </div>
-  <div class="__wr_drawer-content">
+  <div class="inline-drawer-content">
     <div class="__wr_switch-row">
-      <label for="__wrEnabled">
-        <i class="fa-solid fa-droplet" style="color:#38bdf8;"></i>
-        启用提醒
-      </label>
+      <label for="__wrEnabled">启用提醒</label>
       <label class="__wr_switch"><input type="checkbox" id="__wrEnabled"><span class="__wr_slider"></span></label>
     </div>
     <div class="__wr_section">
@@ -192,7 +148,7 @@
         <option value="rebound+vibrate">Rebound + 震动</option>
         <option value="silent">只看 Toast（静默）</option>
       </select>
-      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:8px;">💡 震动仅支持 Android，iOS 自动降级为无震动</div>
+      <div style="font-size:11px;color:var(--SmartThemeWeakTextColor,rgba(255,255,255,.4));margin-top:6px;">💡 震动仅支持 Android 浏览器</div>
       <div class="__wr_test-row">
         <button class="__wr_btn secondary" id="__wrTestAlert">🔊 试听一下</button>
       </div>
